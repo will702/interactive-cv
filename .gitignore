@@ -1,0 +1,95 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Generated / build artifacts
+next-env.d.ts
+*.tsbuildinfo
+.turbo/
+.swc/
+.cache/
+.parcel-cache/
+.eslintcache
+*.generated.*
+*.min.js.map
+*.min.css.map
+/contentlayer/
+/storybook-static/
+/playwright-report/
+/test-results/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel/
+
+# Debug / logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+*.log
+
+# Testing
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE (local editor settings)
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Agent / AI tooling (keep out of public repo) ---
+
+# Cursor
+.cursor/
+.cursorrules
+.cursorignore
+
+# Claude / Anthropic
+.claude/
+AGENTS.md
+CLAUDE.md
+
+# OpenCode / Codex / Windsurf / Continue / Aider
+.opencode/
+.windsurf/
+.continue/
+.aider*
+*.aider.*
+
+# Generic agent workspaces
+.agents/
+agent-transcripts/
+.roo/
+.trae/
+
+# Local MCP / agent config
+.mcp.json
+mcp.json
+
+# Agent planning & session artifacts
+conductor/
+docs/superpowers/
+task_plan.md
+findings.md
+progress.md
+*.plan.md
+
+# Copilot / inline AI notes
+.copilot/
+*.copilot.md

@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #FDFCFB;
+  --color-foreground: #0F172A;
+  --color-primary: #1E3A8A;
+  --color-primary-light: #3B82F6;
+  --color-accent: #B45309;
+  
+  --font-heading: var(--font-serif);
+  --font-body: var(--font-body);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-fira);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.glass {
+  @apply bg-white/70 backdrop-blur-md border border-slate-200 shadow-sm;
+}
+
+.matrix-cell {
+  @apply flex items-center justify-center transition-all duration-200 border-slate-100;
+}

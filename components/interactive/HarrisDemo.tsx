@@ -60,8 +60,7 @@ export function HarrisDemo() {
 
       <div className="lg:col-span-2 space-y-4">
         <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-[2rem] blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
-          <div className="relative rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-800 aspect-video bg-slate-50 dark:bg-slate-900 shadow-sm flex items-center justify-center">
+          <div className="relative rounded-sm overflow-hidden border border-slate-200 dark:border-slate-800 aspect-video bg-slate-50 dark:bg-slate-900 shadow-sm flex items-center justify-center">
             {result ? (
               <Image src={result} alt="Harris Corners" fill className="object-contain p-2" unoptimized />
             ) : (
@@ -77,7 +76,7 @@ export function HarrisDemo() {
             
             {isProcessing && (
               <div className="absolute inset-0 bg-white/40 dark:bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center transition-opacity">
-                <div className="bg-white dark:bg-slate-800 px-6 py-3 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
+                <div className="bg-white dark:bg-slate-800 px-6 py-3 rounded-sm shadow-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3">
                   <Loader2 className="w-5 h-5 animate-spin text-indigo-500" />
                   <span className="font-bold text-slate-900 dark:text-slate-100">Analyzing gradients...</span>
                 </div>
@@ -87,7 +86,7 @@ export function HarrisDemo() {
         </div>
         
         {cornerCount !== null && !isProcessing && (
-          <div className="flex items-center justify-center gap-3 py-3 px-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 w-fit mx-auto">
+          <div className="flex items-center justify-center gap-3 py-3 px-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-sm border border-indigo-100 dark:border-indigo-800 w-fit mx-auto">
             <Sparkles size={18} className="text-indigo-600 dark:text-indigo-400" />
             <p className="font-bold text-indigo-900 dark:text-indigo-200 tracking-tight">
               Corners detected: <span className="text-xl ml-1">{cornerCount}</span>

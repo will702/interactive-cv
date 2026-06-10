@@ -25,9 +25,8 @@ export function HomographyDemo() {
     setError(null);
     try {
       const res = await estimateHomography(image1, image2, nFeatures, ratio, ransac);
-      if (res.error) throw new Error(res.error);
       setResult(`data:image/jpeg;base64,${res.result_image}`);
-      setInliers(res.inliers);
+      setInliers(res.inlier_count);
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
@@ -59,14 +58,14 @@ export function HomographyDemo() {
             ]} 
           />
           
-          <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 p-6 rounded-3xl">
+          <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 p-6 rounded-sm">
              <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-3">
                  <ShieldCheck size={18} className="text-indigo-600 dark:text-indigo-400" />
                  <h4 className="font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-widest text-xs">Solver Consensus</h4>
                </div>
                {inliers !== null && !isProcessing && (
-                 <span className="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-md uppercase tracking-tighter">Verified</span>
+                 <span className="bg-indigo-900 text-white text-[10px] font-bold px-2 py-1 rounded-sm uppercase tracking-widest">Verified</span>
                )}
              </div>
              
@@ -89,11 +88,10 @@ export function HomographyDemo() {
         </div>
       </div>
 
-      {error && <p className="text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-4 rounded-2xl border border-rose-100 dark:border-rose-800 text-center">{error}</p>}
+      {error && <p className="text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-4 rounded-sm border border-rose-100 dark:border-rose-800 text-center">{error}</p>}
 
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600/20 to-violet-600/20 rounded-[2.5rem] blur-2xl opacity-40"></div>
-        <div className="relative rounded-[2.5rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl aspect-video bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+        <div className="relative rounded-sm overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl aspect-video bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
           {result ? (
             <Image src={result} alt="Warped Overlay" fill className="object-contain" unoptimized />
           ) : (

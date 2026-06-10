@@ -24,7 +24,6 @@ export function FeatureMatching() {
     setError(null);
     try {
       const res = await matchFeatures(image1, image2, nFeatures, ratio);
-      if (res.error) throw new Error(res.error);
       setResult(`data:image/jpeg;base64,${res.result_image}`);
       setMatchCount(res.match_count);
     } catch (e: unknown) {
@@ -57,19 +56,19 @@ export function FeatureMatching() {
             ]} 
           />
           
-          <div className="bg-cyan-50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800/50 p-6 rounded-3xl">
+          <div className="bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 p-6 rounded-sm">
             <div className="flex items-center gap-3 mb-2">
-              <Zap size={18} className="text-cyan-600 dark:text-cyan-400" />
-              <h4 className="font-bold text-cyan-900 dark:text-cyan-100 uppercase tracking-widest text-xs">Matching Status</h4>
+              <Zap size={18} className="text-indigo-600 dark:text-indigo-400" />
+              <h4 className="font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-widest text-xs">Matching Status</h4>
             </div>
             {isProcessing ? (
-              <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 font-bold">
+              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold">
                 <Loader2 className="animate-spin" size={20} />
                 <span>Computing descriptors & matching...</span>
               </div>
             ) : matchCount !== null ? (
-              <p className="text-cyan-800 dark:text-cyan-300 font-medium leading-relaxed">
-                Found <span className="text-2xl font-black">{matchCount}</span> consistent feature correspondences across both images using the Hamming distance.
+              <p className="text-indigo-900 dark:text-indigo-300 font-medium leading-relaxed">
+                Found <span className="text-2xl font-bold">{matchCount}</span> consistent feature correspondences across both images using the Hamming distance.
               </p>
             ) : (
               <p className="text-slate-400 text-sm italic font-medium">Ready to correlate features...</p>
@@ -78,11 +77,10 @@ export function FeatureMatching() {
         </div>
       </div>
 
-      {error && <p className="text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-4 rounded-2xl border border-rose-100 dark:border-rose-800 text-center">{error}</p>}
+      {error && <p className="text-rose-500 text-sm font-medium bg-rose-50 dark:bg-rose-900/20 p-4 rounded-sm border border-rose-100 dark:border-rose-800 text-center">{error}</p>}
 
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 rounded-[2.5rem] blur-xl opacity-50"></div>
-        <div className="relative rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-900 min-h-[400px] flex items-center justify-center">
+        <div className="relative rounded-sm overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-slate-900 min-h-[400px] flex items-center justify-center">
           {result ? (
             <Image src={result} alt="Matches" fill className="object-contain" unoptimized />
           ) : (
@@ -95,8 +93,8 @@ export function FeatureMatching() {
           {isProcessing && (
             <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
                <div className="flex flex-col items-center gap-3">
-                 <div className="w-16 h-16 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin"></div>
-                 <span className="text-cyan-500 font-black uppercase tracking-widest text-xs">Hamming Distance...</span>
+                 <div className="w-16 h-16 border-4 border-slate-500/20 border-t-slate-200 rounded-full animate-spin"></div>
+                 <span className="text-slate-200 font-bold uppercase tracking-widest text-xs">Hamming Distance...</span>
                </div>
             </div>
           )}

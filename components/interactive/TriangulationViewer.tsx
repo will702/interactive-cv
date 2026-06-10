@@ -21,7 +21,6 @@ export function TriangulationViewer() {
     setError(null);
     try {
       const res = await computeTriangulation(image1, image2, 3000, 0.75, 1.0);
-      if (res.error) throw new Error(res.error);
       setPoints3D(res.points_3d);
       setCam2Pos(res.cam2_pos);
     } catch (e: unknown) {

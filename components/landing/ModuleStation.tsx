@@ -1,6 +1,14 @@
 'use client';
 import React from 'react';
+import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
+
+const ROUTE_MAP: Record<string, string> = {
+  filtering: '/filtering',
+  features: '/features',
+  camera: '/camera-model',
+  epipolar: '/epipolar',
+};
 
 interface Props {
   title: string;
@@ -11,13 +19,19 @@ interface Props {
 }
 
 export function ModuleStation({ title, id, icon: Icon, description, onHover }: Props) {
-  const [refId] = React.useState(() => `LESSON_${id.toUpperCase()}`);
+  const refId = `LESSON_${id.toUpperCase()}`;
+  const href = ROUTE_MAP[id] ?? `/${id}`;
+  const descLabel = description.split(':')[1]?.trim() || description;
 
   return (
-    <div 
+    <Link
+      href={href}
       onMouseEnter={() => onHover(id)}
       onMouseLeave={() => onHover('default')}
-      className="group relative p-8 bg-white border border-slate-200 hover:border-indigo-900/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 cursor-pointer overflow-hidden rounded-sm"
+      onFocus={() => onHover(id)}
+      onBlur={() => onHover('default')}
+      aria-label={`${title} — ${descLabel}`}
+      className="group relative block p-8 bg-white border border-slate-200 hover:border-indigo-900/30 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 overflow-hidden rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-900 focus-visible:ring-offset-2"
     >
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex justify-between items-start mb-8">
@@ -34,7 +48,7 @@ export function ModuleStation({ title, id, icon: Icon, description, onHover }: P
             {title}
           </h3>
           <p className="text-[10px] font-sans font-medium text-slate-400 uppercase tracking-[0.2em] group-hover:text-indigo-900 transition-colors">
-            {description.split(':')[1]?.trim() || description}
+            {descLabel}
           </p>
         </div>
 
@@ -48,6 +62,6 @@ export function ModuleStation({ title, id, icon: Icon, description, onHover }: P
 
       {/* Subtle Background Accent */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-    </div>
+    </Link>
   );
 }

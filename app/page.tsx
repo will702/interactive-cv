@@ -22,19 +22,20 @@ export default function Home() {
 
   return (
     <div className="space-y-16 pb-20">
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <div className="h-px w-8 bg-slate-300" />
-          <span className="text-[10px] font-sans font-bold text-slate-400 tracking-[0.4em] uppercase">
-            Interactive Series · Vol. 01
-          </span>
-          <div className="h-px w-8 bg-slate-300" />
+      <div>
+        <div className="flex items-end justify-between gap-8">
+          <h1 className="font-serif font-medium leading-[0.9] tracking-[-0.03em] text-slate-900 [text-wrap:balance]">
+            <span className="block text-[clamp(2.25rem,6vw,5.5rem)]">Computer Vision</span>
+            <span className="block text-[clamp(2.25rem,6vw,5.5rem)] italic text-slate-900">Interactive Lab</span>
+          </h1>
+          <div className="hidden md:block shrink-0 text-right self-end pb-1">
+            <p className="font-mono text-[8px] font-bold text-slate-300 tracking-[0.15em] leading-loose uppercase">
+              CV_LAB.001<br />Series I · 2026
+            </p>
+          </div>
         </div>
-        <h1 className="text-6xl md:text-7xl font-medium tracking-tight text-slate-900">
-          Computer Vision <span className="italic font-serif text-indigo-900">Interactive</span> Lab
-        </h1>
-        <p className="font-sans text-xs text-slate-500 uppercase tracking-[0.5em] max-w-lg mx-auto leading-relaxed border-t border-slate-200 pt-4">
-          A Curated Exploration of Visual Geometry & Signal Processing
+        <p className="mt-8 font-serif text-lg text-slate-500 leading-relaxed max-w-2xl">
+          Visual geometry and signal processing — made interactive.
         </p>
       </div>
 

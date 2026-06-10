@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans, Fira_Code, Lora } from "next/font/google";
+import { Inter, Fira_Code, Lora } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
-
-const plusJakarta = Plus_Jakarta_Sans({
-  variable: "--font-heading",
-  subsets: ["latin"],
-});
 
 const inter = Inter({
   variable: "--font-body",
@@ -38,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakarta.variable} ${inter.variable} ${fira.variable} ${lora.variable} h-full antialiased`}
+      className={`${inter.variable} ${fira.variable} ${lora.variable} h-full antialiased`}
     >
       <body className="flex h-screen bg-[#FDFCFB] text-slate-900 font-body">
         <Sidebar />

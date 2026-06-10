@@ -7,11 +7,16 @@
 
 import { useCvStore } from './cvStore';
 
+const READY_TIMEOUT_MS = 30_000;
+
 class CvWorkerClient {
   private worker: Worker | null = null;
   private requests: Map<number, { resolve: (value: any) => void, reject: (reason?: any) => void }> = new Map();
   private nextId = 0;
   private canvas: HTMLCanvasElement | null = null;
+  private readyPromise: Promise<void> | null = null;
+  private readyResolve: (() => void) | null = null;
+  private readyReject: ((reason: Error) => void) | null = null;
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -20,21 +25,56 @@ class CvWorkerClient {
   }
 
   private init() {
+    this.readyPromise = new Promise<void>((resolve, reject) => {
+      this.readyResolve = resolve;
+      this.readyReject = reject;
+    });
+    // Avoid unhandled-rejection noise when nothing is awaiting yet.
+    this.readyPromise.catch(() => {});
+
+    const timeout = setTimeout(() => {
+      this.failReady('Vision engine timed out loading OpenCV.js');
+    }, READY_TIMEOUT_MS);
+
+    this.readyPromise.finally(() => clearTimeout(timeout)).catch(() => {});
+
     this.worker = new Worker(new URL('../worker/cv.worker.ts', import.meta.url));
     this.worker.onmessage = (e) => this.handleMessage(e);
+    this.worker.onerror = (e) => {
+      this.failReady(`Vision engine worker failed: ${e.message || 'unknown error'}`);
+    };
     this.canvas = document.createElement('canvas');
+  }
+
+  private failReady(message: string) {
+    if (useCvStore.getState().cvStatus !== 'loading') return;
+    useCvStore.getState().setCvStatus('error', message);
+    this.readyReject?.(new Error(message));
+  }
+
+  /**
+   * Resolves once OpenCV is initialized in the worker; rejects if it
+   * failed to load or timed out.
+   */
+  whenReady(): Promise<void> {
+    if (!this.readyPromise) {
+      return Promise.reject(new Error('Vision engine is only available in the browser'));
+    }
+    return this.readyPromise;
   }
 
   private handleMessage(e: MessageEvent) {
     const { id, type, result, error } = e.data;
 
     if (type === 'READY') {
-      useCvStore.getState().setCvReady(true);
+      useCvStore.getState().setCvStatus('ready');
+      this.readyResolve?.();
       return;
     }
 
     if (type === 'ERROR' && id === undefined) {
       console.error('Global worker error:', error);
+      this.failReady(error || 'Vision engine failed to load OpenCV.js');
       return;
     }
 
@@ -137,7 +177,7 @@ class CvWorkerClient {
     };
   }
 
-  async detectFeatures(base64: string, method: 'SIFT' | 'ORB', nFeatures: number): Promise<{ resultImage: string, keypointCount: number }> {
+  async detectFeatures(base64: string, method: 'AKAZE' | 'ORB', nFeatures: number): Promise<{ resultImage: string, keypointCount: number }> {
     const imageData = await this.base64ToImageData(base64);
     const { resultImage, keypointCount } = await this.request('DETECT_FEATURES', { imageData, method, nFeatures });
     return {
@@ -166,10 +206,10 @@ class CvWorkerClient {
     };
   }
 
-  async computeFundamental(image1: string, image2: string, nFeatures: number, ratio: number): Promise<{ resultImage: string, inlierCount: number, F_matrix: number[][] }> {
+  async computeFundamental(image1: string, image2: string, nFeatures: number, ratio: number, ransacThreshold: number = 1.0): Promise<{ resultImage: string, inlierCount: number, F_matrix: number[][] }> {
     const imageData1 = await this.base64ToImageData(image1);
     const imageData2 = await this.base64ToImageData(image2);
-    const { resultImage, inlierCount, F_matrix } = await this.request('COMPUTE_FUNDAMENTAL', { imageData1, imageData2, nFeatures, ratio });
+    const { resultImage, inlierCount, F_matrix } = await this.request('COMPUTE_FUNDAMENTAL', { imageData1, imageData2, nFeatures, ratio, ransacThreshold });
     return {
       resultImage: this.imageDataToBase64(resultImage),
       inlierCount,
@@ -177,16 +217,16 @@ class CvWorkerClient {
     };
   }
 
-  async computeEssential(image1: string, image2: string, nFeatures: number, ratio: number): Promise<{ R: number[][], t: number[], inlierCount: number }> {
+  async computeEssential(image1: string, image2: string, nFeatures: number, ratio: number, ransacThreshold: number = 1.0): Promise<{ R: number[][], t: number[], inlierCount: number }> {
     const imageData1 = await this.base64ToImageData(image1);
     const imageData2 = await this.base64ToImageData(image2);
-    return await this.request('COMPUTE_ESSENTIAL', { imageData1, imageData2, nFeatures, ratio });
+    return await this.request('COMPUTE_ESSENTIAL', { imageData1, imageData2, nFeatures, ratio, ransacThreshold });
   }
 
-  async computeTriangulation(image1: string, image2: string, nFeatures: number, ratio: number): Promise<{ points3d: number[][], cam2: { R: number[][], t: number[] }, cam2_pos: number[] }> {
+  async computeTriangulation(image1: string, image2: string, nFeatures: number, ratio: number, ransacThreshold: number = 1.0): Promise<{ points3d: number[][], cam2: { R: number[][], t: number[] }, cam2_pos: number[] }> {
     const imageData1 = await this.base64ToImageData(image1);
     const imageData2 = await this.base64ToImageData(image2);
-    return await this.request('COMPUTE_TRIANGULATION', { imageData1, imageData2, nFeatures, ratio });
+    return await this.request('COMPUTE_TRIANGULATION', { imageData1, imageData2, nFeatures, ratio, ransacThreshold });
   }
 }
 

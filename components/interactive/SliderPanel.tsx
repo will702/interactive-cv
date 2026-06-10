@@ -27,7 +27,7 @@ export function SliderPanel({ sliders, title, compact }: SliderPanelProps) {
            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/natural-paper.png")' }} />
 
       {title && (
-        <h3 className={`relative z-10 font-serif text-indigo-900 font-medium italic tracking-tight border-b border-slate-50 ${compact ? 'text-sm pb-2' : 'text-lg pb-4'}`}>
+        <h3 className={`relative z-10 font-serif text-slate-900 font-medium italic tracking-tight border-b border-slate-50 ${compact ? 'text-sm pb-2' : 'text-lg pb-4'}`}>
           {title}
         </h3>
       )}

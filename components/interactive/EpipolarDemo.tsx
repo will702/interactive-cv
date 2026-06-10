@@ -46,7 +46,6 @@ export function EpipolarDemo() {
 
     try {
       const res = await computeFundamental(image1, image2, 3000, 0.75, 1.0);
-      if ((res as { error?: string }).error) throw new Error((res as { error?: string }).error);
       setFMatrix((res as { F_matrix: number[][] }).F_matrix);
       setInliers((res as { inlier_count: number }).inlier_count);
     } catch (e: unknown) {

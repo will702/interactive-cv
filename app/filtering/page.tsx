@@ -25,6 +25,7 @@ export default function FilteringPage() {
   const [cvcConv, setCvcConv] = useState<string | null>(null);
   const [cvcCorr, setCvcCorr] = useState<string | null>(null);
   const [cvcProcessing, setCvcProcessing] = useState(false);
+  const [cvcError, setCvcError] = useState<string | null>(null);
 
   const handleApplyKernel = async () => {
     if (!sourceImage) return;
@@ -43,13 +44,14 @@ export default function FilteringPage() {
   const handleConvVsCorr = async () => {
     if (!cvcSource) return;
     setCvcProcessing(true);
+    setCvcError(null);
     try {
       const kernel = cvcKernelName === 'Asymmetric Shift' ? ASYMMETRIC_KERNEL : KERNELS[cvcKernelName];
       const res = await convVsCorr(cvcSource, kernel);
       setCvcConv(`data:image/jpeg;base64,${res.convolution}`);
       setCvcCorr(`data:image/jpeg;base64,${res.correlation}`);
     } catch (e: unknown) {
-      console.error(e);
+      setCvcError((e as Error).message);
     } finally {
       setCvcProcessing(false);
     }
@@ -58,18 +60,14 @@ export default function FilteringPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-24 pb-20">
       <div className="text-center space-y-6 pt-12">
-        <div className="flex items-center justify-center gap-4 mb-2">
-           <div className="h-px w-8 bg-slate-200" />
-           <span className="text-[10px] font-sans font-bold text-slate-300 uppercase tracking-[0.4em]">Volume I // Part 01</span>
-           <div className="h-px w-8 bg-slate-200" />
-        </div>
-        <h1 className="text-6xl font-serif font-medium text-slate-900 tracking-tight leading-tight italic">
+        <h1 className="text-6xl font-serif font-medium text-slate-900 tracking-tight leading-tight italic [text-wrap:balance]">
           Image Filtering
         </h1>
         <p className="text-sm font-sans text-slate-500 uppercase tracking-[0.4em] max-w-lg mx-auto">
           Principles of Spatial Convolution and Linear Operators
         </p>
-        <div className="h-px w-32 bg-indigo-900/10 mx-auto mt-8" />
+        <p className="text-[10px] font-sans text-slate-400 uppercase tracking-[0.25em]">Vol. I · Part 01</p>
+        <div className="h-px w-32 bg-slate-200 mx-auto mt-8" />
       </div>
 
       <LessonSection title="The Anatomy of Convolution">
@@ -99,8 +97,8 @@ export default function FilteringPage() {
 
       <LessonSection title="Interactive Laboratory">
         <p className="mb-12">
-          Different kernels produce different effects. A <em className="text-indigo-900 font-bold italic">Box Blur</em> averages neighboring pixels, 
-          while an <em className="text-indigo-900 font-bold italic">Edge Detector</em> like Sobel highlights gradients. Observe the transformation below.
+          Different kernels produce different effects. A <em className="italic">Box Blur</em> averages neighboring pixels,
+          while an <em className="italic">Edge Detector</em> like Sobel highlights gradients. Observe the transformation below.
         </p>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -157,7 +155,7 @@ export default function FilteringPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white p-10 border border-slate-100 shadow-sm rounded-sm">
             <div className="space-y-6">
-              <h4 className="font-sans font-bold uppercase tracking-[0.2em] text-[9px] text-indigo-900/60">Reference Operator</h4>
+              <h4 className="font-sans font-bold uppercase tracking-[0.2em] text-[9px] text-slate-400">Reference Operator</h4>
               <div className="bg-[#F9F8F6] p-6 border border-slate-200/60 flex flex-col items-center gap-6">
                  <div className="w-full relative">
                     <select 
@@ -197,6 +195,7 @@ export default function FilteringPage() {
                 {cvcProcessing ? <Loader2 className="animate-spin" size={14} /> : <Repeat size={14} />}
                 {cvcProcessing ? 'Computing...' : 'Differentiate'}
               </button>
+              {cvcError && <p className="text-rose-900 text-[10px] font-sans font-bold bg-rose-50 p-4 border border-rose-100 uppercase tracking-widest">{cvcError}</p>}
             </div>
           </div>
 
@@ -210,7 +209,7 @@ export default function FilteringPage() {
                 <ImageCompare image1={cvcCorr} image2={cvcConv} alt1="Correlation" alt2="Convolution" />
               </div>
               <p className="text-[9px] text-center mt-4 font-sans font-bold text-slate-300 uppercase tracking-widest">
-                Fig 1.2 — Disparity Map
+                Fig. 1.2 — Disparity between correlation and convolution
               </p>
             </div>
           )}

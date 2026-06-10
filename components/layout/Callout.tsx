@@ -9,9 +9,9 @@ interface Props {
 
 export function Callout({ title, children, type = 'tip' }: Props) {
   const styles = {
-    tip: 'bg-[#F9F7F2] border-l-4 border-l-amber-400 text-slate-800',
-    info: 'bg-[#F0F4F8] border-l-4 border-l-indigo-400 text-slate-800',
-    warning: 'bg-[#FFF0F0] border-l-4 border-l-rose-400 text-slate-800',
+    tip: 'bg-[#F9F7F2] border-t border-t-[#B45309] text-slate-800',
+    info: 'bg-[#F0F4F8] border-t border-t-[#3B82F6] text-slate-800',
+    warning: 'bg-[#FFF0F0] border-t border-t-rose-600 text-slate-800',
   };
 
   const Icons = {

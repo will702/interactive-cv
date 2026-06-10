@@ -5,36 +5,49 @@
 // Declare the cv object for the worker context
 declare const cv: any;
 
-// Use importScripts to load OpenCV.js in the worker context
-const OPENCV_URL = 'https://docs.opencv.org/4.10.0/opencv.js';
+// Self-hosted OpenCV.js (see public/vendor/). Resolved against the page
+// origin because relative paths resolve against the bundled worker chunk.
+const OPENCV_URL = new URL('/vendor/opencv.js', self.location.origin).href;
+
+function signalWhenReady() {
+  const checkReady = () => {
+    if (typeof cv !== 'undefined' && cv.Mat) {
+      postMessage({ type: 'READY' });
+    } else {
+      setTimeout(checkReady, 100);
+    }
+  };
+
+  if (typeof cv !== 'undefined' && cv.onRuntimeInitialized) {
+    const original = cv.onRuntimeInitialized;
+    cv.onRuntimeInitialized = () => {
+      if (original) original();
+      postMessage({ type: 'READY' });
+    };
+  } else {
+    checkReady();
+  }
+}
 
 /**
  * Handle worker initialization
  */
-function initOpenCV() {
+async function initOpenCV() {
   try {
-    importScripts(OPENCV_URL);
-    
-    const checkReady = () => {
-      if (typeof cv !== 'undefined' && cv.Mat) {
-        postMessage({ type: 'READY' });
-      } else {
-        setTimeout(checkReady, 100);
-      }
-    };
-    
-    if (cv.onRuntimeInitialized) {
-      const original = cv.onRuntimeInitialized;
-      cv.onRuntimeInitialized = () => {
-        if (original) original();
-        postMessage({ type: 'READY' });
-      };
-    } else {
-      checkReady();
+    try {
+      importScripts(OPENCV_URL);
+    } catch {
+      // importScripts is unavailable in module workers — fall back to
+      // fetching the script and evaluating it in the global scope.
+      const res = await fetch(OPENCV_URL);
+      if (!res.ok) throw new Error(`fetch ${OPENCV_URL} → HTTP ${res.status}`);
+      (0, eval)(await res.text());
     }
+    signalWhenReady();
   } catch (e) {
     console.error('Failed to load OpenCV in worker:', e);
-    postMessage({ type: 'ERROR', error: 'Failed to load OpenCV.js' });
+    const detail = e instanceof Error ? e.message : String(e);
+    postMessage({ type: 'ERROR', error: `Failed to load OpenCV.js: ${detail}` });
   }
 }
 
@@ -462,7 +475,9 @@ onmessage = async (e) => {
         const src = imageDataToMat(imageData);
         const gray = new cv.Mat();
         cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-        const detector = method === 'SIFT' ? new cv.SIFT(nFeatures) : new cv.ORB(nFeatures);
+        // SIFT was removed from upstream opencv.js builds; AKAZE is the
+        // non-binary alternative this build ships.
+        const detector = method === 'AKAZE' ? new cv.AKAZE() : new cv.ORB(nFeatures);
         const keypoints = new cv.KeyPointVector();
         const descriptors = new cv.Mat();
         detector.detectAndCompute(gray, new cv.Mat(), keypoints, descriptors);
@@ -553,7 +568,7 @@ onmessage = async (e) => {
       }
 
       case 'COMPUTE_FUNDAMENTAL': {
-        const { imageData1, imageData2, nFeatures, ratio } = payload;
+        const { imageData1, imageData2, nFeatures, ratio, ransacThreshold = 1.0 } = payload;
         const src1 = imageDataToMat(imageData1);
         const src2 = imageDataToMat(imageData2);
         const gray1 = new cv.Mat(), gray2 = new cv.Mat();
@@ -581,7 +596,7 @@ onmessage = async (e) => {
         bf.delete(); matches.delete(); orb.delete();
         if (srcPts.length < 16) throw new Error('Not enough matches to compute fundamental matrix');
 
-        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, 1.0, 1000);
+        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, ransacThreshold, 1000);
 
         // Draw epipolar lines on image2 for visual feedback
         const src2b = imageDataToMat(imageData2);
@@ -614,7 +629,7 @@ onmessage = async (e) => {
       }
 
       case 'COMPUTE_ESSENTIAL': {
-        const { imageData1, imageData2, nFeatures, ratio } = payload;
+        const { imageData1, imageData2, nFeatures, ratio, ransacThreshold = 1.0 } = payload;
         const src1 = imageDataToMat(imageData1);
         const src2 = imageDataToMat(imageData2);
         const gray1 = new cv.Mat(), gray2 = new cv.Mat();
@@ -643,7 +658,7 @@ onmessage = async (e) => {
         bf.delete(); matches.delete(); orb.delete();
         if (srcPts.length < 16) throw new Error('Not enough matches for essential matrix estimation (need at least 8 point pairs)');
 
-        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, 1.0, 1000);
+        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, ransacThreshold, 1000);
         const f = Math.max(cols1, rows1) * 1.2;
         const Kd = [f,0,cols1/2, 0,f,rows1/2, 0,0,1];
         // E = K^T * F * K
@@ -665,7 +680,7 @@ onmessage = async (e) => {
       }
 
       case 'COMPUTE_TRIANGULATION': {
-        const { imageData1, imageData2, nFeatures, ratio } = payload;
+        const { imageData1, imageData2, nFeatures, ratio, ransacThreshold = 1.0 } = payload;
         const src1 = imageDataToMat(imageData1);
         const src2 = imageDataToMat(imageData2);
         const gray1 = new cv.Mat(), gray2 = new cv.Mat();
@@ -694,7 +709,7 @@ onmessage = async (e) => {
         bf.delete(); matches.delete(); orb.delete();
         if (srcPts.length < 16) throw new Error('Not enough matches for triangulation (need at least 8 point pairs)');
 
-        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, 1.0, 1000);
+        const { F: Farr, mask: fmask } = findFundamental(srcPts, dstPts, ransacThreshold, 1000);
         const f = Math.max(cols1, rows1) * 1.2;
         const Kd = [f,0,cols1/2, 0,f,rows1/2, 0,0,1];
         const Ed = m3m(m3m(m3t(Kd), Farr), Kd);

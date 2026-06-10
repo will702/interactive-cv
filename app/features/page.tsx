@@ -8,18 +8,14 @@ export default function FeaturesPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-24 pb-20">
       <div className="text-center space-y-6 pt-12">
-        <div className="flex items-center justify-center gap-4 mb-2">
-           <div className="h-px w-8 bg-slate-200" />
-           <span className="text-[10px] font-sans font-bold text-slate-300 uppercase tracking-[0.4em]">Volume I // Part 02</span>
-           <div className="h-px w-8 bg-slate-200" />
-        </div>
-        <h1 className="text-6xl font-serif font-medium text-slate-900 tracking-tight leading-tight italic">
+        <h1 className="text-6xl font-serif font-medium text-slate-900 tracking-tight leading-tight italic [text-wrap:balance]">
           Feature Detection
         </h1>
         <p className="text-sm font-sans text-slate-500 uppercase tracking-[0.4em] max-w-lg mx-auto">
           Identification of Invariant Interest Points and Descriptor Localities
         </p>
-        <div className="h-px w-32 bg-indigo-900/10 mx-auto mt-8" />
+        <p className="text-[10px] font-sans text-slate-400 uppercase tracking-[0.25em]">Vol. I · Part 02</p>
+        <div className="h-px w-32 bg-slate-200 mx-auto mt-8" />
       </div>
 
       <LessonSection title="The Harris Operator">
